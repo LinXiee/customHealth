@@ -277,7 +277,10 @@ local function ApplyHeal(ply, Medkit, Limb)
     end
 
     net.Start("chRefresh")
-    net.WriteTable(ply.openedMenuFor.chCustomHealth)
+
+    local healthdata = util.Compress(util.TableToJSON(ply.openedMenuFor.chCustomHealth))
+
+    net.WriteData(healthdata, 3000)
     local plyRefresh = {
     }
 
@@ -290,7 +293,8 @@ local function ApplyHeal(ply, Medkit, Limb)
     net.Send(plyRefresh)
 
     net.Start("chRefreshMeds")
-    net.WriteTable(ply.cHealthMeds)
+    local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
+    net.WriteData(medsdata, 3000)
     net.Send(ply)
 
 end
@@ -389,10 +393,13 @@ end
 local function CheckVars(ent)
 
     if ent.menuOpen then
+
+        local healthdata = util.Compress(util.TableToJSON(ent.openedMenuFor.chCustomHealth))
+        local medsdata = util.Compress(util.TableToJSON(ent.cHealthMeds))
         
         net.Start("chRefresh")
-        net.WriteTable(ent.openedMenuFor.chCustomHealth)
-        net.WriteTable(ent.cHealthMeds)
+        net.WriteData(healthdata, 3000)
+        net.WriteData(medsdata, 3000)
         net.Send(ent)
     end
 end
@@ -446,9 +453,12 @@ net.Receive("chButDown", function(len, ply)
 
     if inFront:IsPlayer() and inFront:GetPos():DistToSqr(ply:GetPos()) < 75^2 then 
 
+        local healthdata = util.Compress(util.TableToJson(inFront.chCustomHealth))
+        local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
+
         net.Start("chopenMenu")
-        net.WriteTable(inFront.chCustomHealth)
-        net.WriteTable(ply.cHealthMeds)
+        net.WriteData(healthdata, 64)
+        net.WriteData(medsdata, 64)
         net.WriteString(inFront:GetName())
         net.WriteString(inFront:GetModel())
         net.Send(ply)
@@ -457,10 +467,13 @@ net.Receive("chButDown", function(len, ply)
         inFront.menuOnply:AddPlayer(ply)
 
     elseif inFront:IsRagdoll() then
+
+        local healthdata = util.Compress(util.TableToJSON(inFront.ragdolledPly.chCustomHealth))
+        local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
         
         net.Start("chopenMenu")
-        net.WriteTable(inFront.ragdolledPly.chCustomHealth)
-        net.WriteTable(ply.cHealthMeds)
+        net.WriteData(healthdata, 64)
+        net.WriteData(medsdata, 64)
         net.WriteString(inFront.ragdolledPly:GetName())
         net.WriteString(inFront:GetModel())
         net.Send(ply)
@@ -470,15 +483,24 @@ net.Receive("chButDown", function(len, ply)
 
     else
 
+        local healthdata = util.Compress(util.TableToJSON(ply.chCustomHealth, false))
+        local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds, false))
+
+        local healthlen = #healthdata
+        local medslen = #medsdata
+
         net.Start("chopenMenu")
-        net.WriteTable(ply.chCustomHealth)
-        net.WriteTable(ply.cHealthMeds)
+        net.WriteUInt(healthlen, 16)
+        net.WriteData(healthdata, healthlen)
+        net.WriteUInt(medslen, 16)
+        net.WriteData(medsdata, medslen)
         net.WriteString(ply:GetName())
         net.WriteString(ply:GetModel())
         net.Send(ply)
 
         ply.openedMenuFor = ply
         ply.openedMenuFor.menuOnply:AddPlayer(ply)
+
     end
 
 end)

@@ -455,6 +455,8 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
 
     end
 
+    if Meds then
+
     for k, v in pairs(Meds) do
         
         local currentMed = k
@@ -530,17 +532,18 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
         end
         
     end
+end
 
     net.Receive("chRefresh", function()
         
-        local newHealth = net.ReadTable()
+        local newHealth = util.JSONToTable(util.Decompress(net.ReadData(3000)))
         Health = newHealth
 
     end)
 
     net.Receive("chRefreshMeds", function()
     
-        local newHealth = net.ReadTable()
+        local newHealth = util.JSONToTable(util.Decompress(net.ReadData(3000)))
         Meds = newHealth
 
         if medsList:ChildCount() > 0 then
@@ -630,7 +633,6 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
             end
             
         end
-
     end)
 
     net.Receive("chcloseMenu", function() 
@@ -645,7 +647,15 @@ end
 
 net.Receive("chopenMenu", function()
 
-    OpenMenu(net.ReadTable(), net.ReadTable(), net.ReadString(), net.ReadString())
+    local healthlen = net.ReadUInt(16)
+    local healthdata = util.JSONToTable(util.Decompress(net.ReadData(healthlen)))
+    
+    local medslen = net.ReadUInt(16)
+    local medsdata = util.JSONToTable(util.Decompress(net.ReadData(medslen)))
+    local plyName = net.ReadString()
+    local plyModel = net.ReadString()
+
+    OpenMenu(healthdata, medsdata, plyName, plyModel)
 
 end)
 
