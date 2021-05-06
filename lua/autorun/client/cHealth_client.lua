@@ -534,16 +534,16 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
     end
 end
 
-    net.Receive("chRefresh", function()
+    net.Receive("chRefresh", function(len)
         
-        local newHealth = util.JSONToTable(util.Decompress(net.ReadData(3000)))
+        local newHealth = util.JSONToTable(util.Decompress(net.ReadData(len)))
         Health = newHealth
 
     end)
 
-    net.Receive("chRefreshMeds", function()
+    net.Receive("chRefreshMeds", function(len)
     
-        local newHealth = util.JSONToTable(util.Decompress(net.ReadData(3000)))
+        local newHealth = util.JSONToTable(util.Decompress(net.ReadData(len)))
         Meds = newHealth
 
         if medsList:ChildCount() > 0 then

@@ -280,7 +280,7 @@ local function ApplyHeal(ply, Medkit, Limb)
 
     local healthdata = util.Compress(util.TableToJSON(ply.openedMenuFor.chCustomHealth))
 
-    net.WriteData(healthdata, 3000)
+    net.WriteData(healthdata, #healthdata)
     local plyRefresh = {
     }
 
@@ -292,9 +292,10 @@ local function ApplyHeal(ply, Medkit, Limb)
     end
     net.Send(plyRefresh)
 
-    net.Start("chRefreshMeds")
     local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
-    net.WriteData(medsdata, 3000)
+
+    net.Start("chRefreshMeds")
+    net.WriteData(medsdata, #medsdata)
     net.Send(ply)
 
 end
@@ -456,9 +457,15 @@ net.Receive("chButDown", function(len, ply)
         local healthdata = util.Compress(util.TableToJson(inFront.chCustomHealth))
         local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
 
+        local healthlen = #healthdata
+        local medslen = #medsdata
+
         net.Start("chopenMenu")
-        net.WriteData(healthdata, 64)
-        net.WriteData(medsdata, 64)
+
+        net.WriteUint(healthlen, 16)
+        net.WriteData(healthdata, healthlen)
+        net.WriteUInt(medslen, 16)
+        net.WriteData(medsdata, medslen)
         net.WriteString(inFront:GetName())
         net.WriteString(inFront:GetModel())
         net.Send(ply)
@@ -470,10 +477,15 @@ net.Receive("chButDown", function(len, ply)
 
         local healthdata = util.Compress(util.TableToJSON(inFront.ragdolledPly.chCustomHealth))
         local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
+
+        local healthlen = #healthdata
+        local medslen = #medsdata
         
         net.Start("chopenMenu")
-        net.WriteData(healthdata, 64)
-        net.WriteData(medsdata, 64)
+        net.WriteUint(healthlen, 16)
+        net.WriteData(healthdata, healthlen)
+        net.WriteUInt(medslen, 16)
+        net.WriteData(medsdata, medslen)
         net.WriteString(inFront.ragdolledPly:GetName())
         net.WriteString(inFront:GetModel())
         net.Send(ply)
