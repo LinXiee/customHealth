@@ -67,7 +67,7 @@ local function ragdollPlayer( ply )
         end
     end
 
-    ply:Spectate(OBS_MODE_IN_EYE)
+    ply:Spectate(OBS_MODE_CHASE)
     ply:SpectateEntity(ragdoll)
     ply:StripWeapons()
 
@@ -147,14 +147,10 @@ local function respawnPlayer(ply)
     ply:UnSpectate()
 
     local ragdoll = ply.ragdoll 
-    ply.ragdoll = nil
 
     if ULib then
         ragdoll:DisallowDeleting(false)
     end
-
-    ragdoll:Remove()
-
     end
 
     ply:Respawn()
@@ -396,11 +392,10 @@ local function CheckVars(ent)
     if ent.menuOpen then
 
         local healthdata = util.Compress(util.TableToJSON(ent.openedMenuFor.chCustomHealth))
-        local medsdata = util.Compress(util.TableToJSON(ent.cHealthMeds))
+        local healthlen = #healthdata
         
         net.Start("chRefresh")
-        net.WriteData(healthdata, 3000)
-        net.WriteData(medsdata, 3000)
+        net.WriteData(healthdata, #healthdata)
         net.Send(ent)
     end
 end
@@ -412,7 +407,6 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.BleedMultiplier = ply.oldStats.bleedMulti
         ply.cHealthMeds = table.Copy(ply.oldStats.meds)
         ply.oldStats = nil
-
     else
         ply.chCustomHealth = table.Copy(cHealth.Bones)
         ply.BleedMultiplier = 1
@@ -420,6 +414,14 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.chRespawnTimer = cHealth.respawnCooldown
 
     end
+
+    if ply.ragdoll then
+        ply.ragdoll:Remove()
+        ply.ragdoll = nil
+    end
+
+    ply:SetMaxHealth(480)
+    ply:SetHealth(480)
 
     if ply.menuOnply then
         
@@ -482,7 +484,7 @@ net.Receive("chButDown", function(len, ply)
         local medslen = #medsdata
         
         net.Start("chopenMenu")
-        net.WriteUint(healthlen, 16)
+        net.WriteUInt(healthlen, 16)
         net.WriteData(healthdata, healthlen)
         net.WriteUInt(medslen, 16)
         net.WriteData(medsdata, medslen)
@@ -584,6 +586,9 @@ hook.Add("PlayerDeath", "blackscreenOnDeath", function(ply, inflict, attack)
     if ply:GetRagdollEntity() then
         ply:GetRagdollEntity():Remove()
     end
+
+    ply:Spectate(OBS_MODE_CHASE)
+    ply:SpectateEntity(ply.ragdoll)
 
     if cHealth.ActivateDeathScreen then 
 
