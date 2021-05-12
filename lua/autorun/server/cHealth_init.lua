@@ -420,9 +420,6 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.ragdoll = nil
     end
 
-    ply:SetMaxHealth(480)
-    ply:SetHealth(480)
-
     if ply.menuOnply then
         
         net.Start("chcloseMenu")
