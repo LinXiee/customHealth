@@ -17,7 +17,7 @@ function plyMetaTable:AddMedkit(Medkit)
 
     if !self:IsPlayer() then return end
 
-    self.cHealthMeds[#self.cHealthMeds+1] = table.Copy(cHealth.Meds[Medkit])
+    self.cHealthMeds[#self.cHealthMeds+1] = table.Copy(cHealth.cfg.Meds[Medkit])
 
 end
 
@@ -85,7 +85,7 @@ local function ragdollPlayer( ply )
 
     if cHealth.ActivateDeathscreen then
         net.Start("chIsRagdolled")
-        net.WriteUInt(cHealth.UnconciousCooldown, 8)
+        net.WriteUInt(cHealth.cfg.UnconciousCooldown, 8)
         net.Send(ply)
     end
 
@@ -376,7 +376,7 @@ local function ApplyDamage(ply, dmg, bone)
         
         if ply:Alive() and !ply.ragdoll and !ply.ragdolledPly then
             ragdollPlayer(ply)
-            timer.Create(ply:SteamID() .. "chrespawntimer", cHealth.UnconciousCooldown, 1, function()
+            timer.Create(ply:SteamID() .. "chrespawntimer", cHealth.cfg.UnconciousCooldown, 1, function()
                 if ply.ragdoll then
                     ply:Kill()
                 end 
@@ -411,7 +411,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.chCustomHealth = table.Copy(cHealth.cfg.Bones)
         ply.BleedMultiplier = 1
         ply.cHealthMeds = {}
-        ply.chRespawnTimer = cHealth..cfg.respawnCooldown
+        ply.chRespawnTimer = cHealth.cfg.respawnCooldown
 
     end
 

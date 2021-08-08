@@ -280,7 +280,7 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
             surface.DrawRect(0, h/3, w, h/4, 1)
             surface.SetDrawColor(color_white)
             surface.SetMaterial(healthBar)
-            surface.DrawTexturedRect(1, h/2.9, (Health[4].Amount*(w/cHealth.Bones[4].Amount)) - 2, h/5, 1)
+            surface.DrawTexturedRect(1, h/2.9, (Health[4].Amount*(w/cHealth.cfg.Bones[4].Amount)) - 2, h/5, 1)
 
             if Health[4].isBroken then
             surface.SetMaterial(fracture)
@@ -527,7 +527,7 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
             surface.DrawOutlinedRect(2, 0, w-1, h, 2)
             draw.SimpleText(v.Name, "cHealthFont", w/7, h/3, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
             draw.SimpleText(v.Description, "cHealthFont", w/7, h/1.5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-            draw.SimpleText(v.Points.."/"..cHealth.Meds[v.Name].Points, "cHealthFont", w/1.3, h/3, color_white, TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+            draw.SimpleText(v.Points.."/"..cHealth.cfg.Meds[v.Name].Points, "cHealthFont", w/1.3, h/3, color_white, TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
             
         end
         
@@ -628,7 +628,7 @@ end
                 surface.DrawOutlinedRect(2, 0, w-1, h, 2)
                 draw.SimpleText(v.Name, "cHealthFont", w/7, h/3, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                 draw.SimpleText(v.Description, "cHealthFont", w/7, h/1.5, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-                draw.SimpleText(v.Points.."/"..cHealth.Meds[v.Name].Points, "cHealthFont", w/1.3, h/3, color_white, TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+                draw.SimpleText(v.Points.."/"..cHealth.cfg.Meds[v.Name].Points, "cHealthFont", w/1.3, h/3, color_white, TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
                 
             end
             
