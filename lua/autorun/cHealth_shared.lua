@@ -5,9 +5,11 @@ local splintSound = Sound("splint.wav")
 local aiSound = Sound("ai.wav")
 local milBandage = Sound("milbandage.wav")
 
-cHealth = {}
+cHealth = cHealth or {}
 
-cHealth.Bones = {
+cHealth.cfg = {}
+
+cHealth.cfg.Bones = {
 
     [1] = {Amount = 35, isBroken = false, isBleeding = false, isHeavyBleed = false, Name = "Head"}, --Header
     [2] = {Amount = 85, isBroken = false, isBleeding = false, isHeavyBleed = false, Name = "Chest"}, --Chest
@@ -25,7 +27,7 @@ Name : Item Name
 Points : HealingPoints
 Heal --
     Maxpoints : Max points being healed at a time
-    bone : broken bones (if set to true)
+    bone : broken Bones (if set to true)
     lightBleed : lightbleeds (if set to true)
     heavyBleed : Heavy Bleeds (if set to true)
     blackout : Limb at 0 HP (if set to true)
@@ -33,7 +35,7 @@ Model : Modelpath
 Description : Description underneath the Model and Name shown in "K"-Menu
 Sound : Sound to be played when healing a limb
 ]]
-cHealth.Meds = {
+cHealth.cfg.Meds = {
 ["Grizzly Medbag"] = {Name = "Grizzly Medbag", --Name
             Points = 1800, --Healingpoints
             Heal = {Maxpoints = 100, bone = true, lightBleed = true, heavyBleed = true}, 
@@ -100,7 +102,11 @@ cHealth.Meds = {
 
 }
 
-cHealth.respawnCooldown = 5
-cHealth.UnconciousCooldown = 40
+//cooldown to respawn after the player is fully dead
+cHealth.cfg.respawnCooldown = 5
 
-cHealth.ActivateDeathScreen = false
+//Time a Player is unconcious
+cHealth.cfg.UnconciousCooldown = 40
+
+//If set to false, no Player gets the Deathscreen of this addon
+cHealth.cfg.ActivateDeathScreen = false

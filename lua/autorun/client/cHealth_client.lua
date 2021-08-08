@@ -158,11 +158,11 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
             draw.RoundedBox(10, 0, 1, w, h/1.9, color_black)
             draw.RoundedBox(10, 0, 2, w, h/1.9, color_gray)
             draw.SimpleText("Head", "DermaDefault", w/2, h/3.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-            draw.SimpleText(Health[1].Amount .. "/" .. cHealth.Bones[1].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+            draw.SimpleText(Health[1].Amount .. "/" .. cHealth.cfg.Bones[1].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
             surface.DrawOutlinedRect(0, h/3, w, h/4, 1)
             surface.SetDrawColor(color_white)
             surface.SetMaterial(healthBar)
-            surface.DrawTexturedRect(1, h/2.9, (Health[1].Amount*(w/cHealth.Bones[1].Amount)) - 2, h/5, 1)
+            surface.DrawTexturedRect(1, h/2.9, (Health[1].Amount*(w/cHealth.cfg.Bones[1].Amount)) - 2, h/5, 1)
             
             if Health[1].isBroken then
             surface.SetMaterial(fracture)
@@ -201,8 +201,8 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
             surface.DrawRect(0, h/3, w, h/4, 1)
             surface.SetDrawColor(color_white)
             surface.SetMaterial(healthBar)
-            surface.DrawTexturedRect(1, h/2.9, (Health[2].Amount*(w/cHealth.Bones[2].Amount)) - 2, h/5, 1)
-            draw.SimpleText(Health[2].Amount .. "/" .. cHealth.Bones[2].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+            surface.DrawTexturedRect(1, h/2.9, (Health[2].Amount*(w/cHealth.cfg.Bones[2].Amount)) - 2, h/5, 1)
+            draw.SimpleText(Health[2].Amount .. "/" .. cHealth.cfg.Bones[2].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 
             if Health[2].isBroken then
             surface.SetMaterial(fracture)
@@ -237,11 +237,11 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
             draw.RoundedBox(10, 0, 1, w, h/1.9, color_black)
             draw.RoundedBox(10, 0, 2, w, h/1.9, color_gray)
             draw.SimpleText("Stomach", "DermaDefault", w/2, h/3.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-            draw.SimpleText(Health[3].Amount .. "/" .. cHealth.Bones[3].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+            draw.SimpleText(Health[3].Amount .. "/" .. cHealth.cfg.Bones[3].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
             surface.DrawRect(0, h/3, w, h/4, 1)
             surface.SetDrawColor(color_white)
             surface.SetMaterial(healthBar)
-            surface.DrawTexturedRect(1, h/2.9, (Health[3].Amount*(w/cHealth.Bones[3].Amount)) - 2, h/5, 1)
+            surface.DrawTexturedRect(1, h/2.9, (Health[3].Amount*(w/cHealth.cfg.Bones[3].Amount)) - 2, h/5, 1)
 
             if Health[3].isBroken then
             surface.SetMaterial(fracture)
@@ -276,7 +276,7 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
             draw.RoundedBox(10, 0, 1, w, h/1.9, color_black)
             draw.RoundedBox(10, 0, 2, w, h/1.9, color_gray)
             draw.SimpleText("Left Arm", "DermaDefault", w/2, h/3.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-            draw.SimpleText(Health[4].Amount .. "/" .. cHealth.Bones[4].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+            draw.SimpleText(Health[4].Amount .. "/" .. cHealth.cfg.Bones[4].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
             surface.DrawRect(0, h/3, w, h/4, 1)
             surface.SetDrawColor(color_white)
             surface.SetMaterial(healthBar)
@@ -316,11 +316,11 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
         draw.RoundedBox(10, 0, 1, w, h/1.9, color_black)
         draw.RoundedBox(10, 0, 2, w, h/1.9, color_gray)
         draw.SimpleText("Right Arm", "DermaDefault", w/2, h/3.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-        draw.SimpleText(Health[5].Amount .. "/" .. cHealth.Bones[5].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+        draw.SimpleText(Health[5].Amount .. "/" .. cHealth.cfg.Bones[5].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
         surface.DrawRect(0, h/3, w, h/4, 1)
         surface.SetDrawColor(color_white)
         surface.SetMaterial(healthBar)
-            surface.DrawTexturedRect(1, h/2.9, (Health[5].Amount*(w/cHealth.Bones[5].Amount)) - 2, h/5, 1)
+            surface.DrawTexturedRect(1, h/2.9, (Health[5].Amount*(w/cHealth.cfg.Bones[5].Amount)) - 2, h/5, 1)
 
             if Health[5].isBroken then
             surface.SetMaterial(fracture)
@@ -355,11 +355,11 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
         draw.RoundedBox(10, 0, 1, w, h/1.9, color_black)
         draw.RoundedBox(10, 0, 2, w, h/1.9, color_gray)
         draw.SimpleText("Left Leg", "DermaDefault", w/2, h/3.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-        draw.SimpleText(Health[6].Amount .. "/" .. cHealth.Bones[6].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+        draw.SimpleText(Health[6].Amount .. "/" .. cHealth.cfg.Bones[6].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
         surface.DrawRect(0, h/3, w, h/4, 1)
         surface.SetDrawColor(color_white)
         surface.SetMaterial(healthBar)
-            surface.DrawTexturedRect(1, h/2.9, (Health[6].Amount*(w/cHealth.Bones[6].Amount)) - 2, h/5, 1)
+            surface.DrawTexturedRect(1, h/2.9, (Health[6].Amount*(w/cHealth.cfg.Bones[6].Amount)) - 2, h/5, 1)
             if Health[6].isBroken then
             surface.SetMaterial(fracture)
             surface.DrawTexturedRect(2, h/1.7, 20, 20)
@@ -394,13 +394,13 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
         draw.RoundedBox(10, 0, 1, w, h/1.9, color_black)
         draw.RoundedBox(10, 0, 2, w, h/1.9, color_gray)
         draw.SimpleText("Right Leg", "DermaDefault", w/2, h/3.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
-        draw.SimpleText(Health[7].Amount .. "/" .. cHealth.Bones[7].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+        draw.SimpleText(Health[7].Amount .. "/" .. cHealth.cfg.Bones[7].Amount, "DermaDefault", w, h/1.3, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
         surface.DrawRect(0, h/3, w, h/4, 4)
         surface.SetDrawColor(XeninUI.Theme.Background)
         surface.DrawOutlinedRect(0, h/2.7, w, h/5, 1)
         surface.SetDrawColor(color_white)
         surface.SetMaterial(healthBar)
-            surface.DrawTexturedRect(1, h/2.9, (Health[7].Amount*(w/cHealth.Bones[7].Amount)) - 2, h/5, 1)
+            surface.DrawTexturedRect(1, h/2.9, (Health[7].Amount*(w/cHealth.cfg.Bones[7].Amount)) - 2, h/5, 1)
 
             if Health[7].isBroken then
             surface.SetMaterial(fracture)

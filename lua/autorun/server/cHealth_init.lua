@@ -25,7 +25,7 @@ function plyMetaTable:chFullHeal()
 
     if !self:IsPlayer() then return end
 
-    self.chCustomHealth = table.Copy(cHealth.Bones)
+    self.chCustomHealth = table.Copy(cHealth.cfg.Bones)
 
 end
 
@@ -186,7 +186,7 @@ local function ApplyHeal(ply, Medkit, Limb)
 
     local selectedLimb = ply.openedMenuFor.chCustomHealth[Limb]
 
-    local MaxHealPossibile = cHealth.Bones[Limb].Amount - selectedLimb.Amount --Missing HP on Bone
+    local MaxHealPossibile = cHealth.cfg.Bones[Limb].Amount - selectedLimb.Amount --Missing HP on Bone
 
     if (selectedMeds.Points < MaxHealPossibile) and selectedMeds.Points > 0 then --If selected Meds has enough Points to Heal
         
@@ -194,7 +194,7 @@ local function ApplyHeal(ply, Medkit, Limb)
 
     end
 
-    if MaxHealPossible == cHealth.Bones[Limb].Amount or (selectedLimb.Amount == 0 and !heals.blackout) or selectedLimb.Amount == cHealth.Bones[Limb].Amount then -- if limb is full or fully to 0, dont heal
+    if MaxHealPossible == cHealth.cfg.Bones[Limb].Amount or (selectedLimb.Amount == 0 and !heals.blackout) or selectedLimb.Amount == cHealth.cfg.Bones[Limb].Amount then -- if limb is full or fully to 0, dont heal
         
     elseif heals.blackout and selectedLimb.Amount == 0 then
         
@@ -262,7 +262,7 @@ local function ApplyHeal(ply, Medkit, Limb)
 
     if selectedPly.ragdoll then
         
-        if selectedPly.chCustomHealth[1].Amount == cHealth.Bones[1].Amount and selectedPly.chCustomHealth[2].Amount == cHealth.Bones[2].Amount then
+        if selectedPly.chCustomHealth[1].Amount == cHealth.cfg.Bones[1].Amount and selectedPly.chCustomHealth[2].Amount == cHealth.cfg.Bones[2].Amount then
             unragdollPlayer(selectedPly)
         end
 
@@ -408,10 +408,10 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.cHealthMeds = table.Copy(ply.oldStats.meds)
         ply.oldStats = nil
     else
-        ply.chCustomHealth = table.Copy(cHealth.Bones)
+        ply.chCustomHealth = table.Copy(cHealth.cfg.Bones)
         ply.BleedMultiplier = 1
         ply.cHealthMeds = {}
-        ply.chRespawnTimer = cHealth.respawnCooldown
+        ply.chRespawnTimer = cHealth..cfg.respawnCooldown
 
     end
 
@@ -433,7 +433,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
     end
 
 
-    ply.chRespawnTimer = cHealth.respawnCooldown
+    ply.chRespawnTimer = cHealth.cfg.respawnCooldown
 
     net.Start("respawnScreen")
     net.Send(ply)
