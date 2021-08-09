@@ -112,9 +112,16 @@ net.Receive("chAdmin:OpenMenu", function()
     
                     net.Start("chAdmin:Give")
                     net.WriteString(k)
-                    net.WriteEntity(self.ply)
+                    net.WriteEntity(panel.ply)
                     net.SendToServer()
     
+                    if panel.ply == LocalPlayer() then
+                        chat.AddText(XeninUI.Theme.Orange,"[cHealth] ", color_white, "Gave yourself ", k)
+
+                    else 
+                        chat.AddText(XeninUI.Theme.Orange, "[cHealth] ", color_white, "Gave ", k, " to ", panel.ply:GetName())
+                    end
+
                 end
 
         end 
@@ -125,6 +132,8 @@ net.Receive("chAdmin:OpenMenu", function()
             net.WriteString(k)
             net.WriteEntity(LocalPlayer())
             net.SendToServer()
+
+            chat.AddText(XeninUI.Theme.Orange,"[cHealth] ", color_white, "Gave yourself ", k)
 
             Frame:Remove()
         end
