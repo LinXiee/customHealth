@@ -18,6 +18,4 @@ net.Receive("chAdmin:Give", function(len, ply)
 
     print(med)
     ply:AddMedkit(med)
-
-
 end)
