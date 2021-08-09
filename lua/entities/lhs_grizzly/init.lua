@@ -4,7 +4,7 @@ include('shared.lua')
 
 function ENT:Initialize()
 
-	self:SetModel( "models/props_junk/trashdumpster01a.mdl" ) -- Standardmodel
+	self:SetModel( "models/carlsmei/escapefromtarkov/medical/grizzly.mdl" ) -- Standardmodel
 	self:PhysicsInit( SOLID_VPHYSICS )      
 	self:SetMoveType( MOVETYPE_VPHYSICS )   
 	self:SetSolid(SOLID_VPHYSICS) 
@@ -12,7 +12,14 @@ function ENT:Initialize()
 	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:Wake()
-
 	end 
+
+end
+
+function ENT:Use(act, call)
+
+    if !cHealth then return end
+
+    
 
 end
