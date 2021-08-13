@@ -14,7 +14,7 @@ util.AddNetworkString("chHealth:IsRagdolled")
 util.AddNetworkString("chSettings:OpenSettings")
 
 util.AddNetworkString("chArmor:AddArmor")
-util.AddNetworkString("chArmor:Remove")
+util.AddNetworkString("chArmor:RemovePly")
 
 local plyMetaTable = FindMetaTable("Entity")
 
@@ -40,6 +40,8 @@ function plyMetaTable:chKill()
 
 end
 
+local plyWithArmor = RecipientFilter()
+
 function plyMetaTable:AddArmor(Armor)
 
     if !self:IsPlayer() or !IsValid(self) then return end
@@ -54,6 +56,8 @@ function plyMetaTable:AddArmor(Armor)
         net.WriteEntity(self)
         net.WriteString(self.chArmor.Name)
         net.Broadcast()
+
+        plyWithArmor:AddPlayer(self)
 
     end
 
@@ -302,7 +306,7 @@ local function ApplyHeal(ply, Medkit, Limb)
         table.remove(ply.cHealthMeds, Medkit) 
     end
 
-    net.Start("chHealth:Refresh")
+    net.Start("chMenu:Refresh")
 
     local healthdata = util.Compress(util.TableToJSON(ply.openedMenuFor.chCustomHealth))
 
@@ -435,7 +439,7 @@ local function CheckVars(ent)
         local healthdata = util.Compress(util.TableToJSON(ent.openedMenuFor.chCustomHealth))
         local healthlen = #healthdata
         
-        net.Start("chHealth:Refresh")
+        net.Start("chMenu:Refresh")
         net.WriteData(healthdata, #healthdata)
         net.Send(ent)
     end
@@ -701,8 +705,16 @@ end)
 
 hook.Add("PlayerDisconnected", "chArmor:Remove", function(ply)   
     
-    net.Start("chArmor:Remove")
+    net.Start("chArmor:RemovePly")
     net.WriteEntity(ply)
+    net.Broadcast()
+
+end)
+
+hook.Add("PlayerDeath", "chArmor:RemoveDeath", function(vic, inf, att)
+
+    net.Start("chArmor:RemovePly")
+    net.WriteEntity(vic)
     net.Broadcast()
 
 end)

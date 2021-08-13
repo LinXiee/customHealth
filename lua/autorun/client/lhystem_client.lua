@@ -776,5 +776,4 @@ net.Receive("chArmor:RemovePly", function()
 
 end)
 
-
 net.Receive("chSettings:OpenSettings", openSettings)
