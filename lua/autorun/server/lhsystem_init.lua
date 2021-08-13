@@ -341,9 +341,12 @@ end
 
 local function ApplyDamage(ply, dmg, bone)
 
-    if bone == 2 or bone == 3 then 
-        dmg = dmg / (ply.chArmor.ArmorClass / 10 + 1)
-        ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / 3), 0 )
+    if (bone == 2 or bone == 3) and ply.chArmor then 
+        local armor = ply.chArmor
+        if (bone == 2 and armor.Torso) or (bone == 3 and armor.Stomach) then
+            dmg = dmg / (ply.chArmor.ArmorClass / 10 + 1)
+            ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / armor.Drain), 0 )
+        end
     end
 
     ply.chCustomHealth[bone].Amount = math.Round(ply.chCustomHealth[bone].Amount - dmg,0)
