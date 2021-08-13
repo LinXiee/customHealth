@@ -1,15 +1,17 @@
-util.AddNetworkString("chopenMenu")
-util.AddNetworkString("chopenedMenu")
-util.AddNetworkString("chclosedMenu")
-util.AddNetworkString("chRefresh")
-util.AddNetworkString("chHealLimb")
-util.AddNetworkString("chIsDead")
-util.AddNetworkString("respawnScreen")
-util.AddNetworkString("chRefreshMeds")
-util.AddNetworkString("chcloseMenu")
-util.AddNetworkString("chIsRagdolled")
-util.AddNetworkString("chButDown")
-util.AddNetworkString("chOpenSettings")
+util.AddNetworkString("chMenu:OpenMenu")
+util.AddNetworkString("chMenu:OpenedMenu")
+util.AddNetworkString("chMenu:ClosedMenu")
+util.AddNetworkString("chMenu:Refresh")
+util.AddNetworkString("chMenu:RefreshMeds")
+util.AddNetworkString("chMenu:closeMenu")
+util.AddNetworkString("chMenu:ButDown")
+
+util.AddNetworkString("chHealth:HealLimb")
+util.AddNetworkString("chHealth:IsDead")
+util.AddNetworkString("chHealth:respawnScreen")
+util.AddNetworkString("chHealth:IsRagdolled")
+
+util.AddNetworkString("chSettings:OpenSettings")
 
 local plyMetaTable = FindMetaTable("Entity")
 
@@ -84,7 +86,7 @@ local function ragdollPlayer( ply )
 	ply.ragdoll = ragdoll
 
     if cHealth.ActivateDeathscreen then
-        net.Start("chIsRagdolled")
+        net.Start("chHealth:IsRagdolled")
         net.WriteUInt(cHealth.cfg.UnconciousCooldown, 8)
         net.Send(ply)
     end
@@ -272,7 +274,7 @@ local function ApplyHeal(ply, Medkit, Limb)
         table.remove(ply.cHealthMeds, Medkit) 
     end
 
-    net.Start("chRefresh")
+    net.Start("chHealth:Refresh")
 
     local healthdata = util.Compress(util.TableToJSON(ply.openedMenuFor.chCustomHealth))
 
@@ -290,7 +292,7 @@ local function ApplyHeal(ply, Medkit, Limb)
 
     local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
 
-    net.Start("chRefreshMeds")
+    net.Start("chMenu:RefreshMeds")
     net.WriteData(medsdata, #medsdata)
     net.Send(ply)
 
@@ -394,7 +396,7 @@ local function CheckVars(ent)
         local healthdata = util.Compress(util.TableToJSON(ent.openedMenuFor.chCustomHealth))
         local healthlen = #healthdata
         
-        net.Start("chRefresh")
+        net.Start("chHealth:Refresh")
         net.WriteData(healthdata, #healthdata)
         net.Send(ent)
     end
@@ -422,7 +424,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
 
     if ply.menuOnply then
         
-        net.Start("chcloseMenu")
+        net.Start("chMenu:closeMenu")
         net.Send(ply.menuOnply)
         ply.menuOnply:RemoveAllPlayers()
 
@@ -435,7 +437,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
 
     ply.chRespawnTimer = cHealth.cfg.respawnCooldown
 
-    net.Start("respawnScreen")
+    net.Start("chHealth:respawnScreen")
     net.Send(ply)
 
     if ply.ragdoll then
@@ -445,7 +447,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
 end)
 
 
-net.Receive("chButDown", function(len, ply)
+net.Receive("chMenu:ButDown", function(len, ply)
 
     if ply.openedMenu then return end
 
@@ -459,7 +461,7 @@ net.Receive("chButDown", function(len, ply)
         local healthlen = #healthdata
         local medslen = #medsdata
 
-        net.Start("chopenMenu")
+        net.Start("chMenu:OpenMenu")
 
         net.WriteUint(healthlen, 16)
         net.WriteData(healthdata, healthlen)
@@ -480,7 +482,7 @@ net.Receive("chButDown", function(len, ply)
         local healthlen = #healthdata
         local medslen = #medsdata
         
-        net.Start("chopenMenu")
+        net.Start("chMenu:OpenMenu")
         net.WriteUInt(healthlen, 16)
         net.WriteData(healthdata, healthlen)
         net.WriteUInt(medslen, 16)
@@ -500,7 +502,7 @@ net.Receive("chButDown", function(len, ply)
         local healthlen = #healthdata
         local medslen = #medsdata
 
-        net.Start("chopenMenu")
+        net.Start("chMenu:OpenMenu")
         net.WriteUInt(healthlen, 16)
         net.WriteData(healthdata, healthlen)
         net.WriteUInt(medslen, 16)
@@ -589,7 +591,7 @@ hook.Add("PlayerDeath", "blackscreenOnDeath", function(ply, inflict, attack)
 
     if cHealth.ActivateDeathScreen then 
 
-        net.Start("chIsDead")
+        net.Start("chHealth:IsDead")
         net.WriteUInt(ply.chRespawnTimer, 8)
         net.Send(ply)
     end
@@ -622,11 +624,11 @@ local function ragdollDisconnectedCheck( ply )
 end
 hook.Add( "PlayerDisconnected", "RagdollDisconnectedCheck", ragdollDisconnectedCheck, HOOK_MONITOR_HIGH )
 
-hook.Add("PlayerSay", "chSettings", function(sender, text, teamChat) 
+hook.Add("PlayerSay", "chSettings:Settings", function(sender, text, teamChat) 
 
-    if string.lower(text) == "!chealth" then
+    if string.lower(text) == "!lhssettings" then
         
-        net.Start("chOpenSettings")
+        net.Start("chSettings:OpenSettings")
         net.Send(sender)
 
         return ""
@@ -635,20 +637,20 @@ hook.Add("PlayerSay", "chSettings", function(sender, text, teamChat)
 
 end)
 
-net.Receive("chopenedMenu", function(len, ply)
+net.Receive("chMenu:OpenedMenu", function(len, ply)
 
     ply.menuOpen = true
 
 end)
 
-net.Receive("chclosedMenu", function(len, ply)
+net.Receive("chMenu:ClosedMenu", function(len, ply)
 
     ply.menuOpen = false
     ply.openedMenuFor.menuOnply:RemovePlayer(ply) 
 
 end)
 
-net.Receive("chHealLimb", function(len, ply)
+net.Receive("chHealth:HealLimb", function(len, ply)
 
     local MedKit = net.ReadUInt(5)
     local Limb = net.ReadUInt(3)

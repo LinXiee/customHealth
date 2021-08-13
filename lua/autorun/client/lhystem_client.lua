@@ -29,7 +29,7 @@ end
 
 local function HealDamage(Medkit, Bone) --Healdamage with MedkitName on Bonenmbr
 
-    net.Start("chHealLimb")
+    net.Start("chHealth:HealLimb")
     net.WriteUInt(Medkit, 5)
     net.WriteUInt(Bone, 3)
     net.SendToServer()
@@ -93,7 +93,7 @@ local function openSettings()
 
 end
 
-concommand.Add("cHealthSettings", function()
+concommand.Add("lhsSettings", function()
 
     openSettings()
 
@@ -104,7 +104,7 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
     local localPly = LocalPlayer()
     local mdl = mdl
 
-    net.Start("chopenedMenu")
+    net.Start("chMenu:OpenedMenu")
     net.SendToServer()
 
     local Frame = vgui.Create("XeninUI.Frame") -- Frame
@@ -117,7 +117,7 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
 
         Frame.OnRemove = function()
 
-            net.Start("chclosedMenu")
+            net.Start("chMenu:ClosedMenu")
             net.SendToServer()
 
             menuOpen = false
@@ -534,14 +534,14 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
     end
 end
 
-    net.Receive("chRefresh", function(len)
+    net.Receive("chMenu:Refresh", function(len)
         
         local newHealth = util.JSONToTable(util.Decompress(net.ReadData(len)))
         Health = newHealth
 
     end)
 
-    net.Receive("chRefreshMeds", function(len)
+    net.Receive("chMenu:RefreshMeds", function(len)
     
         local newHealth = util.JSONToTable(util.Decompress(net.ReadData(len)))
         Meds = newHealth
@@ -635,7 +635,7 @@ end
         end
     end)
 
-    net.Receive("chcloseMenu", function() 
+    net.Receive("chHealth:closeMenu", function() 
 
         if Frame then
             Frame:Remove()
@@ -645,7 +645,7 @@ end
 
 end
 
-net.Receive("chopenMenu", function()
+net.Receive("chMenu:OpenMenu", function()
 
     local healthlen = net.ReadUInt(16)
     local healthdata = util.JSONToTable(util.Decompress(net.ReadData(healthlen)))
@@ -661,7 +661,7 @@ end)
 
 local deathT 
 local respawnText 
-net.Receive("chIsDead", function()
+net.Receive("chHealth:IsDead", function()
     local respawntimer = net.ReadUInt(8)
 
     deathT = CurTime() + respawntimer
@@ -669,7 +669,7 @@ net.Receive("chIsDead", function()
 
 end)
 
-net.Receive("chIsRagdolled", function()
+net.Receive("chHealth:IsRagdolled", function()
 
     local timer  = net.ReadUInt(8)
 
@@ -678,7 +678,7 @@ net.Receive("chIsRagdolled", function()
 
 end)
 
-net.Receive("respawnScreen", function()
+net.Receive("chHealth:respawnScreen", function()
 
     deathT = nil
     
@@ -716,9 +716,9 @@ hook.Add("PlayerButtonDown", "openthedamnMenu", function(ply, key)
 
     if menuOpen then return end
 
-    net.Start("chButDown")
+    net.Start("chMenu:ButDown")
     net.SendToServer()
 
 end)
 
-net.Receive("chOpenSettings", openSettings)
+net.Receive("chSettings:OpenSettings", openSettings)
