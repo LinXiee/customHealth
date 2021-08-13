@@ -65,15 +65,15 @@ local function openSettings()
     Layout:Dock(FILL)
     Layout:SetSpaceY(5)
 
-    local text = Layout:Add("XeninUI.Panel")
-        text:SetSize(scrw/4, scrh/20)
-        text:Center()
-        text.Paint = function(self, w, h)
+    local bindtext = Layout:Add("XeninUI.Panel")
+        bindtext:SetSize(scrw/4, scrh/20)
+        bindtext:Center()
+        bindtext.Paint = function(self, w, h)
             draw.RoundedBox(10, 0, 0, w, h, XeninUI.Theme.Navbar)
             draw.SimpleText("Open the Health Menu", "DermaDefault", w/4, h/2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
 
-    local bind = text:Add("DBinder")
+    local bind = bindtext:Add("DBinder")
         bind:SetSize(scrw/25, scrh/35)
         bind:Center()
         bind:SetValue(keyConfig)
@@ -617,10 +617,8 @@ end
             ModelItem.Index = k
     
             function ModelItem:DoRightClick()
-               
-    
+
             end
-            
     
             ListItem.Paint = function(self, w, h)
     
@@ -720,5 +718,55 @@ hook.Add("PlayerButtonDown", "openthedamnMenu", function(ply, key)
     net.SendToServer()
 
 end)
+
+local plyWithArmor = { 
+
+}
+
+net.Receive("chArmor:AddArmor", function(len) 
+
+    local ply = net.ReadEntity()
+    local armorName = net.ReadString()
+    ply.chArmorcl = table.Copy(cHealth.cfg.Armor[armorName])
+    ply.chArmorModel = ClientsideModel(ply.chArmorcl.Model)
+
+    local plyTable = ply:GetTable()
+    PrintTable(plyTable)
+    print(ply)
+    print(ply.chArmorModel)
+
+    plyWithArmor[ply:SteamID()] = ply.chArmorModel
+
+end)
+
+hook.Add( "PostPlayerDraw" , "Armor" , function( ply )
+	if not IsValid(ply) or not ply:Alive() or not plyWithArmor[ply:SteamID()] then return end
+    local model = plyWithArmor[ply:SteamID()]
+        model:SetNoDraw(true)
+
+	local attach_id = ply:LookupAttachment('chest')
+	if not attach_id then return end
+			
+	local attach = ply:GetAttachment(attach_id)		
+	if not attach then return end
+
+	local pos = attach.Pos
+	local ang = attach.Ang
+		
+	model:SetModelScale((ply.chArmorcl.scale or 1), 0)
+	pos = pos + (ang:Up() * (ply.chArmorcl.upOff or 1)) + (ang:Forward() * (ply.chArmorcl.forOff or 1))
+	ang:RotateAroundAxis(ang:Right(), (ply.chArmorcl.rightOff or 1 ))
+		
+	model:SetPos(pos)
+	model:SetAngles(ang)
+
+	model:SetRenderOrigin(pos)
+	model:SetRenderAngles(ang)
+	model:SetupBones()
+	model:DrawModel()
+	model:SetRenderOrigin()
+	model:SetRenderAngles()
+    
+    end)
 
 net.Receive("chSettings:OpenSettings", openSettings)

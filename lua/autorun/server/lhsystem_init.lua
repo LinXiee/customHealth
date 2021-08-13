@@ -13,6 +13,8 @@ util.AddNetworkString("chHealth:IsRagdolled")
 
 util.AddNetworkString("chSettings:OpenSettings")
 
+util.AddNetworkString("chArmor:AddArmor")
+
 local plyMetaTable = FindMetaTable("Entity")
 
 function plyMetaTable:AddMedkit(Medkit)
@@ -37,6 +39,23 @@ function plyMetaTable:chKill()
 
 end
 
+function plyMetaTable:AddArmor(Armor)
+
+    if !self:IsPlayer() or !IsValid(self) then return end
+    if self.chArmor then print("Player already has Armor") return end
+
+    self.chArmor = table.Copy(cHealth.cfg.Armor[Armor])
+
+    if cHealth.cfg.DrawArmor then 
+
+        net.Start("chArmor:AddArmor")
+        net.WriteEntity(self)
+        net.WriteString(self.chArmor.Name)
+        net.Broadcast()
+
+    end
+
+end
 
 local function ragdollPlayer( ply )
 
@@ -120,6 +139,7 @@ local function unragdollPlayer(v)
         v.oldStats.Health = ragdolledPlayer.chCustomHealth
         v.oldStats.bleedMulti = ragdolledPlayer.BleedMultiplier
         v.oldStats.meds = ragdolledPlayer.cHealthMeds
+        v.oldStats.chArmor = ragdolledPlayer.chArmor
 
 		v:Spawn()
         v:SetPos( pos )
@@ -156,6 +176,14 @@ local function respawnPlayer(ply)
     end
 
     ply:Respawn()
+end
+
+function plyMetaTable:chRespawn()
+
+    if !IsValid(self) and !self:IsAlive() then return end
+
+    respawnPlayer(self)
+
 end
 
 concommand.Add("ragdoll", function(ply) 
@@ -313,6 +341,11 @@ end
 
 local function ApplyDamage(ply, dmg, bone)
 
+    if bone == 2 or bone == 3 then 
+        dmg = dmg / (ply.chArmor.ArmorClass / 10 + 1)
+        ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / 3), 0 )
+    end
+
     ply.chCustomHealth[bone].Amount = math.Round(ply.chCustomHealth[bone].Amount - dmg,0)
 
     if ply.chCustomHealth[bone].Amount < 0 then 
@@ -408,13 +441,14 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.chCustomHealth = table.Copy(ply.oldStats.Health)
         ply.BleedMultiplier = ply.oldStats.bleedMulti
         ply.cHealthMeds = table.Copy(ply.oldStats.meds)
+        ply.chArmor = table.Copy(ply.oldStats.chArmor)
         ply.oldStats = nil
-    else
+    else 
         ply.chCustomHealth = table.Copy(cHealth.cfg.Bones)
         ply.BleedMultiplier = 1
         ply.cHealthMeds = {}
         ply.chRespawnTimer = cHealth.cfg.respawnCooldown
-
+        ply.chArmor = nil
     end
 
     if ply.ragdoll then
@@ -533,7 +567,7 @@ hook.Add("EntityTakeDamage", "reduceHealthOnDMg", function(ent, dmg)
     end
 
     local boneDmgd = ent:LastHitGroup()
-    local dmgAmount = dmg:GetDamage()
+    local dmgAmount = dmg:GetDamage()    
     local dmgType = dmg:GetDamageType()
 
     if dmgType == DMG_FALL then 

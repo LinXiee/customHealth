@@ -7,7 +7,7 @@ local milBandage = Sound("milbandage.wav")
 
 cHealth = cHealth or {}
 
-cHealth.cfg = {}
+cHealth.cfg = cHealth.cfg or {}
 
 cHealth.cfg.Bones = {
 
@@ -102,6 +102,86 @@ cHealth.cfg.Meds = {
 
 }
 
+cHealth.cfg.Armor = {
+    ["Killa"] = {Name = "Killa",
+            Model = "models/player/armor_6b13_killa/6b13_killa.mdl",
+            upOff = -19,
+            forOff = 1,
+            rightOff = 5,
+            scale = 1.03,
+            ArmorClass = 6,
+            Durability = 60,
+            Drain = 0.8,
+            Torso = true,
+            Stomach = true,
+        },
+    ["Press Vest"] = {Name = "Press Vest",
+            Model = "models/player/armor_zhuk3/beetle3.mdl",
+            upOff = -15,
+            forOff = 1,
+            rightOff = 3,
+            scale = 1.04,
+            ArmorClass = 6,
+            Durability = 50,
+            Drain = 1,
+            Torso = true,
+            Stomach = true,
+        },
+    ["MF-UNTAR"] = {Name = "MF-UNTAR",
+            Model = "models/player/armor_un/un.mdl",
+            upOff = -13.5,
+            forOff = 1,
+            rightOff = 3,
+            scale = 1.04,
+            Durability = 50,
+            Torso = true,
+            Stomach = true,
+        },
+    ["Gzhel-K"] = {Name = "Gzhel-K",
+            Model = "models/player/armor_gjel/gjel.mdl",
+            upOff = -14,
+            forOff = 0.6,
+            rightOff = 3,
+        },
+    ["6B13"] = {Name = "6B13",
+            Model = "models/player/armor_6b13_digital/6b13.mdl",
+            upOff = -19,
+            forOff = 1.8,
+            rightOff = 5,
+            scale = 1.01,
+        },
+    ["PACA"] = {Name = "PACA",
+            Model = "models/player/armor_paca/paca.mdl",
+            upOff = -11,
+            forOff = 1.2,
+            rightOff = 5,
+        },
+    ["USEC Trooper"] = {Name = "USEC Trooper",
+            Model = "models/player/armor_trooper/trooper.mdl",
+            upOff = -12,
+            forOff = 0.9,
+            rightOff = 5,
+        },
+    ["Module 3M"] = {Name = "Module 3M",
+            Model = "models/player/armor_module3m/module3m.mdl",
+            upOff = -14.5,
+            forOff = 0.9,
+            rightOff = 3,
+        },
+    ["Zhuk 6a"] = {Name = "Zhuk 6a",
+            Model = "models/player/armor_zhuk6a/beetle6a.mdl",
+            upOff = -15,
+            forOff = 0.9,
+            rightOff = 3,
+        },
+    ["6B5 Flora"] = {Name = "6B5 Flora",
+            Model = "models/player/armor_6b5_flora/6b5.mdl",
+            upOff = -18,
+            forOff = 1,
+            rightOff = 3,
+        },   
+}
+
 //cooldown to respawn after the player is fully dead
 cHealth.cfg.respawnCooldown = 5
 
@@ -110,3 +190,5 @@ cHealth.cfg.UnconciousCooldown = 40
 
 //If set to false, no Player gets the Deathscreen of this addon
 cHealth.cfg.ActivateDeathScreen = false
+
+cHealth.cfg.DrawArmor = true
