@@ -5,6 +5,6 @@ ENT.Author = "LinXiee"
 ENT.Contact = "steamcommunity.com/id/LinXiee"
 ENT.RenderGroup = RENDERGROUP_BOTH
 		
-ENT.PrintName = "Grizzly Medbag"
+ENT.PrintName = "AI-2"
 
 ENT.Spawnable = true

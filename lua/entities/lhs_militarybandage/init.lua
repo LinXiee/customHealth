@@ -4,7 +4,7 @@ include('shared.lua')
 
 function ENT:Initialize()
 
-	self:SetModel( "models/carlsmei/escapefromtarkov/medical/grizzly.mdl" ) -- Standardmodel
+	self:SetModel( "models/carlsmei/escapefromtarkov/medical/bandage_army.mdl" ) -- Standardmodel
 	self:PhysicsInit( SOLID_VPHYSICS )      
 	self:SetMoveType( MOVETYPE_VPHYSICS )   
 	self:SetSolid(SOLID_VPHYSICS) 
@@ -22,7 +22,7 @@ function ENT:Use(act, call)
     if !cHealth then return end
 	if !IsValid(act) and !act:Alive() and !ply.ragdoll then return end
 
-	act:AddMedkit("Grizzly Medbag")
+	act:AddMedkit("Military Bandage")
 	self:Remove()
 
 end
