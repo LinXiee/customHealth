@@ -14,6 +14,7 @@ util.AddNetworkString("chHealth:IsRagdolled")
 util.AddNetworkString("chSettings:OpenSettings")
 
 util.AddNetworkString("chArmor:AddArmor")
+util.AddNetworkString("chArmor:Remove")
 
 local plyMetaTable = FindMetaTable("Entity")
 
@@ -42,7 +43,8 @@ end
 function plyMetaTable:AddArmor(Armor)
 
     if !self:IsPlayer() or !IsValid(self) then return end
-    if self.chArmor then print("Player already has Armor") return end
+    if !cHealth.cfg.Armor[Armor] then return end
+    if self.chArmor then return end
 
     self.chArmor = table.Copy(cHealth.cfg.Armor[Armor])
 
@@ -219,9 +221,7 @@ local function ApplyHeal(ply, Medkit, Limb)
     local MaxHealPossibile = cHealth.cfg.Bones[Limb].Amount - selectedLimb.Amount --Missing HP on Bone
 
     if (selectedMeds.Points < MaxHealPossibile) and selectedMeds.Points > 0 then --If selected Meds has enough Points to Heal
-        
         MaxHealPossibile = selectedMeds.Points -- Set Possible Heal to Points left
-
     end
 
     if MaxHealPossible == cHealth.cfg.Bones[Limb].Amount or (selectedLimb.Amount == 0 and !heals.blackout) or selectedLimb.Amount == cHealth.cfg.Bones[Limb].Amount then -- if limb is full or fully to 0, dont heal
@@ -343,9 +343,12 @@ local function ApplyDamage(ply, dmg, bone)
 
     if (bone == 2 or bone == 3) and ply.chArmor then 
         local armor = ply.chArmor
-        if (bone == 2 and armor.Torso) or (bone == 3 and armor.Stomach) then
+        if (bone == 2 and armor.Torso) or (bone == 3 and armor.Stomach) and armor.Durability > 0 then
             dmg = dmg / (ply.chArmor.ArmorClass / 10 + 1)
             ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / armor.Drain), 0 )
+            if armor.Durability < 0 then 
+                armor.Durabliity = 0
+            end
         end
     end
 
@@ -696,3 +699,10 @@ net.Receive("chHealth:HealLimb", function(len, ply)
 
 end)
 
+hook.Add("PlayerDisconnected", "chArmor:Remove", function(ply)   
+    
+    net.Start("chArmor:Remove")
+    net.WriteEntity(ply)
+    net.Broadcast()
+
+end)

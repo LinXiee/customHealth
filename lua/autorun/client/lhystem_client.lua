@@ -730,19 +730,15 @@ net.Receive("chArmor:AddArmor", function(len)
     ply.chArmorcl = table.Copy(cHealth.cfg.Armor[armorName])
     ply.chArmorModel = ClientsideModel(ply.chArmorcl.Model)
 
-    local plyTable = ply:GetTable()
-    PrintTable(plyTable)
-    print(ply)
-    print(ply.chArmorModel)
-
     plyWithArmor[ply:SteamID()] = ply.chArmorModel
 
 end)
 
-hook.Add( "PostPlayerDraw" , "Armor" , function( ply )
-	if not IsValid(ply) or not ply:Alive() or not plyWithArmor[ply:SteamID()] then return end
+hook.Add( "PostPlayerDraw" , "chArmor:Armor" , function( ply )
+	if not IsValid(ply) or not ply:Alive() then return end
+    if !plyWithArmor[ply:SteamID()] or !ply.chArmorcl then return end
     local model = plyWithArmor[ply:SteamID()]
-        model:SetNoDraw(true)
+    model:SetNoDraw(true)
 
 	local attach_id = ply:LookupAttachment('chest')
 	if not attach_id then return end
@@ -767,6 +763,18 @@ hook.Add( "PostPlayerDraw" , "Armor" , function( ply )
 	model:SetRenderOrigin()
 	model:SetRenderAngles()
     
-    end)
+end)
+
+net.Receive("chArmor:RemovePly", function()
+
+    local dcPly = net.ReadEntity()
+    local steamid = dcPly:SteamID()
+
+    if plyWithArmor[steamid] then
+        plyWithArmor[steamid] = nil
+    end
+
+end)
+
 
 net.Receive("chSettings:OpenSettings", openSettings)

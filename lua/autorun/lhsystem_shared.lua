@@ -210,6 +210,10 @@ cHealth.cfg.Armor = {
         },   
 }
 
+cHealth.cfg.Helmet = {
+
+}
+
 //cooldown to respawn after the player is fully dead
 cHealth.cfg.respawnCooldown = 5
 
@@ -219,4 +223,5 @@ cHealth.cfg.UnconciousCooldown = 40
 //If set to false, no Player gets the Deathscreen of this addon
 cHealth.cfg.ActivateDeathScreen = false
 
+//If set to false, the armor will not be shown on the player when equipped, but they will still work just fine
 cHealth.cfg.DrawArmor = true
