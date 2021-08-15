@@ -15,6 +15,8 @@ util.AddNetworkString("chSettings:OpenSettings")
 
 util.AddNetworkString("chArmor:AddArmor")
 util.AddNetworkString("chArmor:RemovePly")
+util.AddNetworkString("chArmor:PlyReady")
+util.AddNetworkString("chArmor:PlyConnect")
 
 local plyMetaTable = FindMetaTable("Entity")
 
@@ -40,13 +42,13 @@ function plyMetaTable:chKill()
 
 end
 
-local plyWithArmor = RecipientFilter()
+local plyWithArmor = {}
 
 function plyMetaTable:AddArmor(Armor)
 
     if !self:IsPlayer() or !IsValid(self) then return end
     if !cHealth.cfg.Armor[Armor] then return end
-    if self.chArmor then return end
+    if !table.IsEmpty(self.chArmor) then return end
 
     self.chArmor = table.Copy(cHealth.cfg.Armor[Armor])
 
@@ -57,7 +59,7 @@ function plyMetaTable:AddArmor(Armor)
         net.WriteString(self.chArmor.Name)
         net.Broadcast()
 
-        plyWithArmor:AddPlayer(self)
+        plyWithArmor[self:SteamID()] = self.chArmor.Model
 
     end
 
@@ -349,9 +351,13 @@ local function ApplyDamage(ply, dmg, bone)
         local armor = ply.chArmor
         if (bone == 2 and armor.Torso) or (bone == 3 and armor.Stomach) and armor.Durability > 0 then
             dmg = dmg / (ply.chArmor.ArmorClass / 10 + 1)
-            ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / armor.Drain), 0 )
-            if armor.Durability < 0 then 
+            ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / armor.Drain), 2)
+            if armor.Durability <= 0 then 
                 armor.Durabliity = 0
+                ply.chArmor = nil
+                net.Start("chArmor:RemovePly")
+                net.WriteEntity(ply)
+                net.Broadcast()
             end
         end
     end
@@ -458,7 +464,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.BleedMultiplier = 1
         ply.cHealthMeds = {}
         ply.chRespawnTimer = cHealth.cfg.respawnCooldown
-        ply.chArmor = nil
+        ply.chArmor = {}
     end
 
     if ply.ragdoll then
@@ -494,6 +500,7 @@ end)
 net.Receive("chMenu:ButDown", function(len, ply)
 
     if ply.openedMenu then return end
+    if ply.ragdoll then return end
 
     local inFront = ply:GetEyeTrace().Entity
 
@@ -501,9 +508,11 @@ net.Receive("chMenu:ButDown", function(len, ply)
 
         local healthdata = util.Compress(util.TableToJson(inFront.chCustomHealth))
         local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
+        local armorData = util.Compress(util.TableToJSON(ply.chArmor))
 
         local healthlen = #healthdata
         local medslen = #medsdata
+        local armorlen = #armorData
 
         net.Start("chMenu:OpenMenu")
 
@@ -511,6 +520,8 @@ net.Receive("chMenu:ButDown", function(len, ply)
         net.WriteData(healthdata, healthlen)
         net.WriteUInt(medslen, 16)
         net.WriteData(medsdata, medslen)
+        net.WriteUInt(armorlen, 16)
+        net.WriteData(armorData, armorlen)
         net.WriteString(inFront:GetName())
         net.WriteString(inFront:GetModel())
         net.Send(ply)
@@ -518,19 +529,23 @@ net.Receive("chMenu:ButDown", function(len, ply)
         ply.openedMenuFor = inFront
         inFront.menuOnply:AddPlayer(ply)
 
-    elseif inFront:IsRagdoll() then
+    elseif inFront:IsRagdoll() and inFront:GetPos():DistToSqr(ply:GetPos()) < 75^2 then
 
         local healthdata = util.Compress(util.TableToJSON(inFront.ragdolledPly.chCustomHealth))
         local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
+        local armordata = util.Compress(util.TableToJSON(inFront.ragdolledPly.chArmor))
 
         local healthlen = #healthdata
         local medslen = #medsdata
+        local armorlen = #armordata
         
         net.Start("chMenu:OpenMenu")
         net.WriteUInt(healthlen, 16)
         net.WriteData(healthdata, healthlen)
         net.WriteUInt(medslen, 16)
         net.WriteData(medsdata, medslen)
+        net.WriteUInt(armorlen, 16)
+        net.WriteData(armordata, armorlen)
         net.WriteString(inFront.ragdolledPly:GetName())
         net.WriteString(inFront:GetModel())
         net.Send(ply)
@@ -540,17 +555,21 @@ net.Receive("chMenu:ButDown", function(len, ply)
 
     else
 
-        local healthdata = util.Compress(util.TableToJSON(ply.chCustomHealth, false))
-        local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds, false))
+        local healthdata = util.Compress(util.TableToJSON(ply.chCustomHealth))
+        local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
+        local armordata = util.Compress(util.TableToJSON(ply.chArmor))
 
         local healthlen = #healthdata
         local medslen = #medsdata
+        local armorlen = #armordata
 
         net.Start("chMenu:OpenMenu")
         net.WriteUInt(healthlen, 16)
         net.WriteData(healthdata, healthlen)
         net.WriteUInt(medslen, 16)
         net.WriteData(medsdata, medslen)
+        net.WriteUInt(armorlen, 16)
+        net.WriteData(armordata, armorlen)
         net.WriteString(ply:GetName())
         net.WriteString(ply:GetModel())
         net.Send(ply)
@@ -716,5 +735,16 @@ hook.Add("PlayerDeath", "chArmor:RemoveDeath", function(vic, inf, att)
     net.Start("chArmor:RemovePly")
     net.WriteEntity(vic)
     net.Broadcast()
+
+end)
+
+net.Receive("chArmor:PlyReady", function(len, ply)
+
+    local compressedTable = util.compress(util.TableToJSON(plyWithArmor))
+    
+    net.Start("chArmor:PlyConnect")
+    net.WriteUInt(#compressedTable, 16)
+    net.WriteData(compressedTable, #compressedTable)
+    net.Send(ply)
 
 end)

@@ -21,7 +21,7 @@ function ENT:Use(act, call)
 
     if !cHealth then return end
 	if !IsValid(act) and !act:Alive() then return end
-	if act.chArmor or act.ragdoll then return end
+	if !table.IsEmpty(act.chArmor) or act.ragdoll then return end
 
 	act:AddArmor("Module 3M")
 	self:Remove()

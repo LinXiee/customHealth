@@ -99,7 +99,7 @@ concommand.Add("lhsSettings", function()
 
 end)
 
-local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
+local function OpenMenu(Health, Meds, plyName, mdl, armor) -- Opens Menu
 
     local localPly = LocalPlayer()
     local mdl = mdl
@@ -116,12 +116,10 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
     menuOpen = true
 
         Frame.OnRemove = function()
-
             net.Start("chMenu:ClosedMenu")
             net.SendToServer()
 
             menuOpen = false
-
         end
 
 
@@ -532,6 +530,31 @@ local function OpenMenu(Health, Meds, plyName, mdl) -- Opens Menu
         end
         
     end
+
+    if !table.IsEmpty(armor) then 
+        PrintTable(armor)
+
+        local orgArmor = cHealth.cfg.Armor[armor.Name]
+
+        local armorPanelW, armorPanelH = frameW/5, frameH/3
+        local armorPanel = vgui.Create("XeninUI.Panel", Frame)
+        armorPanel:SetSize(armorPanelW, armorPanelH)
+        armorPanel:AlignTop(40)
+        armorPanel:AlignLeft(3)
+        armorPanel.Paint = function(self, w, h)
+            draw.SimpleText("Durability:", "cHealthFont", armorPanelW/2, 10, color_white,TEXT_ALIGN_LEFT,TEXT_ALIGN_LEFT)
+            draw.SimpleText(armor.Durability .. "/" .. orgArmor.Durability, "cHealthFont", armorPanelW/2, 25, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT)
+
+        end
+
+        local armorModelW, armorModelH = armorPanelW/2.5, armorPanelH/2
+        local armorModel = vgui.Create("DModelPanel", armorPanel)
+            armorModel:SetSize(armorModelW, armorModelH)
+            armorModel:SetModel(armor.Model)
+            armorModel:SetCamPos(armorModel:GetCamPos() + Vector(-30,-30,-40))
+            armorModel:SetLookAt(Vector(0,0,10))
+            armorModel:SetLookAng(armorModel:GetLookAng())
+    end
 end
 
     net.Receive("chMenu:Refresh", function(len)
@@ -650,10 +673,14 @@ net.Receive("chMenu:OpenMenu", function()
     
     local medslen = net.ReadUInt(16)
     local medsdata = util.JSONToTable(util.Decompress(net.ReadData(medslen)))
+
+    local armorlen = net.ReadUInt(16)
+    local armordata = util.JSONToTable(util.Decompress(net.ReadData(armorlen)))
+
     local plyName = net.ReadString()
     local plyModel = net.ReadString()
 
-    OpenMenu(healthdata, medsdata, plyName, plyModel)
+    OpenMenu(healthdata, medsdata, plyName, plyModel, armordata)
 
 end)
 
@@ -777,3 +804,20 @@ net.Receive("chArmor:RemovePly", function()
 end)
 
 net.Receive("chSettings:OpenSettings", openSettings)
+
+
+hook.Add("InitPostEntity", "chArmor:Connect", function() 
+
+    net.Start("chArmor:PlyReady")
+    net.SendToServer()
+
+end)
+
+net.Receive("chArmor:PlyConnect", function(len)
+
+    local tbllen = net.ReadUInt(16)
+    local receivedTable = util.Decompress(util.JSONToTable(net.ReadData(tbllen)))
+
+    plyWithArmor = receivedTable
+
+end)
