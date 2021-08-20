@@ -745,11 +745,8 @@ hook.Add("PlayerButtonDown", "openthedamnMenu", function(ply, key)
 end)
 
 local plyWithArmor = { 
-
 }
-
 local plyWithHelmet = { 
-
 }
 
 net.Receive("chArmor:AddArmor", function(len) 
@@ -868,9 +865,16 @@ net.Receive("chArmor:PlyConnect", function(len)
 
     local tbllen = net.ReadUInt(16)
     local receivedTable = util.Decompress(util.JSONToTable(net.ReadData(tbllen)))
+    local bool = net.ReadBool()
 
-    for k,v in pairs(receivedTable) do 
-        plyWithArmor[k] = ClientsideModel(v)
+    if bool then 
+        for k,v in pairs(receivedTable) do 
+            plyWithArmor[k] = ClientsideModel(v)
+        end
+    else   
+        for k,v in paris(receivedTable) do 
+            plyWithHelmet[k] = ClientsideModel(v)
+        end
     end
 
 end)

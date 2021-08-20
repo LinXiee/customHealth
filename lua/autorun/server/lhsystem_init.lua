@@ -798,8 +798,20 @@ net.Receive("chArmor:PlyReady", function(len, ply)
         net.Start("chArmor:PlyConnect")
         net.WriteUInt(#compressedTable, 16)
         net.WriteData(compressedTable, #compressedTable)
+        net.WriteBool(true)
         net.Send(ply)
 
+    end
+
+    if !table.IsEmpty(plyWithHelmet) then
+        
+        local compressedTable = util.Compress(util.TableToJSON(plyWithHelmet))
+
+        net.Start("chArmor:PlyConnect")
+        net.WriteUInt(#compressedTable, 16)
+        net.WriteData(compressedTable, #compressedTable)
+        net.WriteBool(false)
+        net.Send(ply)
     end
 
 end)
