@@ -15,9 +15,9 @@ util.AddNetworkString("chSettings:OpenSettings")
 
 util.AddNetworkString("chArmor:AddArmor")
 util.AddNetworkString("chArmor:RemovePly")
+util.AddNetworkString("chArmor:RemoveDeath")
 util.AddNetworkString("chArmor:PlyReady")
 util.AddNetworkString("chArmor:PlyConnect")
-util.AddNetworkString("chArmor:RemoveDeath")
 
 local plyMetaTable = FindMetaTable("Entity")
 
@@ -377,7 +377,7 @@ local function ApplyDamage(ply, dmg, bone)
 
     if (bone == 2 or bone == 3) and ply.chArmor then 
         local armor = ply.chArmor
-        if (bone == 2 and armor.Torso) or (bone == 3 and armor.Stomach) and armor.Durability > 0 then
+        if (bone == 2 and armor.Torso) or (bone == 3 and armor.Stomach) and armor.Durability and armor.Durability > 0 then
             dmg = dmg / (ply.chArmor.ArmorClass / 10 + 1)
             ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / armor.Drain), 2)
             if armor.Durability <= 0 then 
@@ -395,10 +395,10 @@ local function ApplyDamage(ply, dmg, bone)
 
     if bone == 1 and ply.chHelmet then 
 
-        local helmet = ply.Helmet
-        if helmet.Durability > 0 then
+        local helmet = ply.chHelmet
+        if helmet.Durability and helmet.Durability > 0 then
             dmg = dmg / (ply.chHelmet.ArmorClass / 10 + 1)
-            ply.chHelmet.Durability = math.Round(ply.chHelmet.Durability - (dmg / armor.Drain), 2)
+            ply.chHelmet.Durability = math.Round(ply.chHelmet.Durability - (dmg / helmet.Drain), 2)
             if helmet.Durability <= 0 then
                 helmet.Durability = 0
                 ply.chHelmet = {}
@@ -486,7 +486,6 @@ local function ApplyDamage(ply, dmg, bone)
         end
 
     end
-
 end
 
 local function CheckVars(ent)
