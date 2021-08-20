@@ -47,6 +47,7 @@ local plyWithArmor = {}
 function plyMetaTable:AddArmor(Armor)
 
     if !self:IsPlayer() or !IsValid(self) then return end
+    if !self:Alive() then return end 
     if !cHealth.cfg.Armor[Armor] then return end
     if !table.IsEmpty(self.chArmor) then return end
 
@@ -57,9 +58,35 @@ function plyMetaTable:AddArmor(Armor)
         net.Start("chArmor:AddArmor")
         net.WriteEntity(self)
         net.WriteString(self.chArmor.Name)
+        net.WriteBool(true)
         net.Broadcast()
 
         plyWithArmor[self:SteamID()] = self.chArmor.Model
+
+    end
+
+end
+
+local plyWithHelmet = {}
+
+function plyMetaTable:AddHelmet(Helmet)
+
+    if !self:IsPlayer() or !IsValid(self) then return end
+    if !self:Alive() then return end
+    if !cHealth.cfg.Helmet[Helmet] then return end
+    if !table.IsEmpty(self.chHelmet) then return end
+
+    self.chHelmet = table.Copy(cHealth.cfg.Helmet[Helmet])
+
+    if cHealth.cfg.DrawArmor then
+
+        net.Start("chArmor:AddArmor")
+        net.WriteEntity(self)
+        net.WriteString(self.chHelmet.Name)
+        net.WriteBool(false)
+        net.Broadcast()
+
+        plyWithHelmet[self:SteamID()] = self.chHelmet.Model
 
     end
 
@@ -112,7 +139,7 @@ local function ragdollPlayer( ply )
 
 	ply.ragdoll = ragdoll
 
-    if cHealth.ActivateDeathscreen then
+    if cHealth.cfg.ActivateDeathscreen then
         net.Start("chHealth:IsRagdolled")
         net.WriteUInt(cHealth.cfg.UnconciousCooldown, 8)
         net.Send(ply)
@@ -215,7 +242,7 @@ end)
 
 local function ApplyHeal(ply, Medkit, Limb)
 
-    if !IsValid(ply.openedMenuFor) then ply:ChatPrint("Dieser Spieler ist nicht mehr existent!") return end
+    if !IsValid(ply.openedMenuFor) then ply:ChatPrint("This Player doesn't exist anymore") return end
 
     local selectedPly = ply.openedMenuFor
 
@@ -354,10 +381,33 @@ local function ApplyDamage(ply, dmg, bone)
             ply.chArmor.Durability = math.Round(ply.chArmor.Durability - (dmg / armor.Drain), 2)
             if armor.Durability <= 0 then 
                 armor.Durabliity = 0
-                ply.chArmor = nil
-                net.Start("chArmor:RemovePly")
-                net.WriteEntity(ply)
-                net.Broadcast()
+                ply.chArmor = {}
+                if cHealth.cfg.DrawArmor then 
+                    net.Start("chArmor:RemovePly")
+                    net.WriteEntity(ply)
+                    net.WriteBool(true)
+                    net.Broadcast()
+                end
+            end
+        end
+    end
+
+    if bone == 1 and ply.chHelmet then 
+
+        local helmet = ply.Helmet
+        if helmet.Durability > 0 then
+            dmg = dmg / (ply.chHelmet.ArmorClass / 10 + 1)
+            ply.chHelmet.Durability = math.Round(ply.chHelmet.Durability - (dmg / armor.Drain), 2)
+            if helmet.Durability <= 0 then
+                helmet.Durability = 0
+                ply.chHelmet = {}
+
+                if cHealth.cfg.DrawArmor then 
+                    net.Start("chArmor:RemovePly")
+                    net.WriteEntity(ply)
+                    net.WriteBool(false)
+                    net.Broadcast()
+                end
             end
         end
     end
@@ -465,6 +515,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.cHealthMeds = {}
         ply.chRespawnTimer = cHealth.cfg.respawnCooldown
         ply.chArmor = {}
+        ply.chHelmet = {}
     end
 
     if ply.ragdoll then
@@ -506,7 +557,7 @@ net.Receive("chMenu:ButDown", function(len, ply)
 
     if inFront:IsPlayer() and inFront:GetPos():DistToSqr(ply:GetPos()) < 75^2 then 
 
-        local healthdata = util.Compress(util.TableToJson(inFront.chCustomHealth))
+        local healthdata = util.Compress(util.TableToJSON(inFront.chCustomHealth))
         local medsdata = util.Compress(util.TableToJSON(ply.cHealthMeds))
         local armorData = util.Compress(util.TableToJSON(ply.chArmor))
 
@@ -516,7 +567,7 @@ net.Receive("chMenu:ButDown", function(len, ply)
 
         net.Start("chMenu:OpenMenu")
 
-        net.WriteUint(healthlen, 16)
+        net.WriteUInt(healthlen, 16)
         net.WriteData(healthdata, healthlen)
         net.WriteUInt(medslen, 16)
         net.WriteData(medsdata, medslen)
@@ -652,7 +703,7 @@ hook.Add("PlayerDeath", "blackscreenOnDeath", function(ply, inflict, attack)
     ply:Spectate(OBS_MODE_CHASE)
     ply:SpectateEntity(ply.ragdoll)
 
-    if cHealth.ActivateDeathScreen then 
+    if cHealth.cfg.ActivateDeathScreen then 
 
         net.Start("chHealth:IsDead")
         net.WriteUInt(ply.chRespawnTimer, 8)
@@ -740,11 +791,15 @@ end)
 
 net.Receive("chArmor:PlyReady", function(len, ply)
 
-    local compressedTable = util.compress(util.TableToJSON(plyWithArmor))
-    
-    net.Start("chArmor:PlyConnect")
-    net.WriteUInt(#compressedTable, 16)
-    net.WriteData(compressedTable, #compressedTable)
-    net.Send(ply)
+    if !table.IsEmpty(plyWithArmor) then
+
+        local compressedTable = util.Compress(util.TableToJSON(plyWithArmor))
+        
+        net.Start("chArmor:PlyConnect")
+        net.WriteUInt(#compressedTable, 16)
+        net.WriteData(compressedTable, #compressedTable)
+        net.Send(ply)
+
+    end
 
 end)

@@ -2,11 +2,11 @@ local color_green = Color(0,190,40, 255)
 local color_red = Color(255,0,0, 255)
 local color_gray = Color(50,50,50,255)
 
-local healthBar = Material("healthbar.png")
+local healthBar = Material("healthbar.png", "noclamp smooth")
 
-local fracture = Material("fracture.png")
-local lightBleed = Material("Bleeding.png")
-local heavyBleed = Material("HeavyBleeding.png")
+local fracture = Material("fracture.png", "noclamp smooth")
+local lightBleed = Material("Bleeding.png", "noclamp smooth")
+local heavyBleed = Material("HeavyBleeding.png", "noclamp smooth")
 
 local testSound = Sound("heal.wav")
 
@@ -532,8 +532,6 @@ local function OpenMenu(Health, Meds, plyName, mdl, armor) -- Opens Menu
     end
 
     if !table.IsEmpty(armor) then 
-        PrintTable(armor)
-
         local orgArmor = cHealth.cfg.Armor[armor.Name]
 
         local armorPanelW, armorPanelH = frameW/5, frameH/3
@@ -750,14 +748,30 @@ local plyWithArmor = {
 
 }
 
+local plyWithHelmet = { 
+
+}
+
 net.Receive("chArmor:AddArmor", function(len) 
 
     local ply = net.ReadEntity()
     local armorName = net.ReadString()
-    ply.chArmorcl = table.Copy(cHealth.cfg.Armor[armorName])
-    ply.chArmorModel = ClientsideModel(ply.chArmorcl.Model)
+    local bool = net.ReadBool()
 
-    plyWithArmor[ply:SteamID()] = ply.chArmorModel
+    if bool then 
+        ply.chArmorcl = table.Copy(cHealth.cfg.Armor[armorName])
+        ply.chArmorModel = ClientsideModel(ply.chArmorcl.Model)
+
+        plyWithArmor[ply:SteamID()] = ply.chArmorModel
+
+    else 
+
+        ply.chHelmetcl = table.Copy(cHealth.cfg.Helmet[armorName])
+        ply.chHelmetModel = ClientsideModel(ply.chHelmetcl.Model)
+
+        plyWithHelmet[ply:SteamID()] = ply.chHelmetModel
+
+    end
 
 end)
 
@@ -792,15 +806,52 @@ hook.Add( "PostPlayerDraw" , "chArmor:Armor" , function( ply )
     
 end)
 
+hook.Add( "PostPlayerDraw" , "chArmor:Helmet" , function( ply )
+	if not IsValid(ply) or not ply:Alive() then return end
+    if !plyWithHelmet[ply:SteamID()] or !ply.chHelmetcl then return end
+    local model = plyWithHelmet[ply:SteamID()]
+    model:SetNoDraw(true)
+
+	local attach_id = ply:LookupAttachment('eyes')
+	if not attach_id then return end
+			
+	local attach = ply:GetAttachment(attach_id)		
+	if not attach then return end
+
+	local pos = attach.Pos
+	local ang = attach.Ang
+		
+	model:SetModelScale((ply.chHelmetcl.scale or 1), 0)
+	pos = pos + (ang:Up() * (ply.chHelmetcl.upOff or 1)) + (ang:Forward() * (ply.chHelmetcl.forOff or 1))
+	ang:RotateAroundAxis(ang:Right(), (ply.chHelmetcl.rightOff or 1 ))
+		
+	model:SetPos(pos)
+	model:SetAngles(ang)
+
+	model:SetRenderOrigin(pos)
+	model:SetRenderAngles(ang)
+	model:SetupBones()
+	model:DrawModel()
+	model:SetRenderOrigin()
+	model:SetRenderAngles()
+    
+end)
+
 net.Receive("chArmor:RemovePly", function()
 
     local dcPly = net.ReadEntity()
     local steamid = dcPly:SteamID()
+    local bool = net.ReadBool()
 
-    if plyWithArmor[steamid] then
-        plyWithArmor[steamid] = nil
+    if bool then 
+        if plyWithArmor[steamid] then
+            plyWithArmor[steamid] = nil
+        end
+    else 
+        if plyWithHelmet[steamid] then
+            plyWithHelmet[steamid] = nil
+        end
     end
-
 end)
 
 net.Receive("chSettings:OpenSettings", openSettings)
@@ -818,6 +869,8 @@ net.Receive("chArmor:PlyConnect", function(len)
     local tbllen = net.ReadUInt(16)
     local receivedTable = util.Decompress(util.JSONToTable(net.ReadData(tbllen)))
 
-    plyWithArmor = receivedTable
+    for k,v in pairs(receivedTable) do 
+        plyWithArmor[k] = ClientsideModel(v)
+    end
 
 end)
