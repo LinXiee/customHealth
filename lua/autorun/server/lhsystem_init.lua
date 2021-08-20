@@ -17,6 +17,7 @@ util.AddNetworkString("chArmor:AddArmor")
 util.AddNetworkString("chArmor:RemovePly")
 util.AddNetworkString("chArmor:PlyReady")
 util.AddNetworkString("chArmor:PlyConnect")
+util.AddNetworkString("chArmor:RemoveDeath")
 
 local plyMetaTable = FindMetaTable("Entity")
 
@@ -783,7 +784,7 @@ end)
 
 hook.Add("PlayerDeath", "chArmor:RemoveDeath", function(vic, inf, att)
 
-    net.Start("chArmor:RemovePly")
+    net.Start("chArmor:RemoveDeath")
     net.WriteEntity(vic)
     net.Broadcast()
 

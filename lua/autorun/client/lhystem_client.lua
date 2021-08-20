@@ -851,6 +851,16 @@ net.Receive("chArmor:RemovePly", function()
     end
 end)
 
+net.Receive("chArmor:RemoveDeath", function()
+
+    local dcPly = net.ReadEntity()
+    local steamid = dcPly:SteamID()
+
+    plyWithArmor[steamid] = nil 
+    plyWithHelmet[steamid] = nil
+
+end)
+
 net.Receive("chSettings:OpenSettings", openSettings)
 
 
