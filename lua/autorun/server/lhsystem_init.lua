@@ -812,7 +812,5 @@ net.Receive("chArmor:PlyReady", function(len, ply)
         net.WriteData(compressedTable, #compressedTable)
         net.WriteBool(false)
         net.Send(ply)
-
     end
-
 end)
