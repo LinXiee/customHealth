@@ -62,7 +62,7 @@ function plyMetaTable:AddArmor(Armor)
         net.WriteBool(true)
         net.Broadcast()
 
-        plyWithArmor[self:SteamID()] = self.chArmor.Model
+        plyWithArmor[self:SteamID()] = self.chArmor.Name
 
     end
 
@@ -87,7 +87,7 @@ function plyMetaTable:AddHelmet(Helmet)
         net.WriteBool(false)
         net.Broadcast()
 
-        plyWithHelmet[self:SteamID()] = self.chHelmet.Model
+        plyWithHelmet[self:SteamID()] = self.chHelmet.Name
 
     end
 
@@ -812,6 +812,7 @@ net.Receive("chArmor:PlyReady", function(len, ply)
         net.WriteData(compressedTable, #compressedTable)
         net.WriteBool(false)
         net.Send(ply)
+
     end
 
 end)
