@@ -1,4 +1,3 @@
-
 local grizzlySound = Sound("grizzly.wav")
 local bandageSound = Sound("bandage.wav")
 local splintSound = Sound("splint.wav")

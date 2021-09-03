@@ -62,7 +62,7 @@ function plyMetaTable:AddArmor(Armor)
         net.WriteBool(true)
         net.Broadcast()
 
-        plyWithArmor[self:SteamID()] = self.chArmor.Name
+        plyWithArmor[self:SteamID()] = {Armor = self.chArmor.Name, Player = self }
 
     end
 
@@ -131,7 +131,7 @@ local function ragdollPlayer( ply )
     if ULib then
 
         ragdoll:DisallowDeleting( true, function( old, new )
-            if ply:IsValid() then ply.ragdoll = new end
+            if IsValid(ply) then ply.ragdoll = new end
         end )
 
 	ply:DisallowSpawning( true )
@@ -163,7 +163,7 @@ local function unragdollPlayer(v)
     local ragdoll = v.ragdoll
     v.ragdoll = nil 
 
-    if not ragdoll:IsValid() then -- Something must have removed it, just spawn
+    if not IsValid(ragdoll) then -- Something must have removed it, just spawn
 		v:Spawn()
 
 	else
@@ -364,7 +364,7 @@ local function BleedEffect(ply)
         
         timer.Create(ply:SteamID().."bleedEffect", 4, 1, function() 
         
-            if !ply:IsValid() then return end
+            if IsValid(ply) then return end
             if ply.BleedMultiplier <= 1 then return end
             ply:TakeDamage(1 * ply.BleedMultiplier, nil, "Bleed")
             BleedEffect(ply)
@@ -508,6 +508,7 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
         ply.BleedMultiplier = ply.oldStats.bleedMulti
         ply.cHealthMeds = table.Copy(ply.oldStats.meds)
         ply.chArmor = table.Copy(ply.oldStats.chArmor)
+        ply.chHelmet = table.Copy(ply.oldStats.chHelmet)
         ply.oldStats = nil
     else 
         ply.chCustomHealth = table.Copy(cHealth.cfg.Bones)
@@ -524,17 +525,13 @@ hook.Add("PlayerSpawn", "chSetHealth", function(ply, trans)
     end
 
     if ply.menuOnply then
-        
         net.Start("chMenu:closeMenu")
         net.Send(ply.menuOnply)
         ply.menuOnply:RemoveAllPlayers()
 
     else 
-
         ply.menuOnply = RecipientFilter()
-
     end
-
 
     ply.chRespawnTimer = cHealth.cfg.respawnCooldown
 

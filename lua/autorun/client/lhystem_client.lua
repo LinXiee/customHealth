@@ -877,19 +877,21 @@ net.Receive("chArmor:PlyConnect", function(len)
     local receivedTable = util.JSONToTable(util.Decompress(net.ReadData(tbllen)))
     local bool = net.ReadBool()
 
+    PrintTable(receivedTable)
+
     if bool then 
         for k,v in pairs(receivedTable) do 
-            local ply = player.GetBySteamID(tostring(k))
+            local ply = v.Player
             if ply then 
-                ply.chArmorcl = table.Copy(cHealth.cfg.Armor[v])
+                ply.chArmorcl = table.Copy(cHealth.cfg.Armor[v.Armor])
                 plyWithArmor[k] = ClientsideModel(ply.chArmorcl.Model)
             end
         end
     else   
         for k,v in paris(receivedTable) do 
-            local ply = player.GetBySteamID(tostring(k))
+            local ply = v.Player
             if ply then
-                ply.chHelmetcl = table.Copy(cHealth.cfg.Helmet[v])
+                ply.chHelmetcl = table.Copy(cHealth.cfg.Helmet[v.Armor])
                 plyWithArmor[k] = ClientsideModel(ply.chHelmetcl.Model)
             end
         end
