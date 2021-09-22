@@ -733,6 +733,7 @@ end)
 hook.Add("PlayerButtonDown", "openthedamnMenu", function(ply, key)
 
     if key != keyConfig or !ply:Alive() then return end
+    if ply != LocalPlayer() then return end
 
     if (keyCooldown or 0) > CurTime() then return end
     keyCooldown = CurTime() + 0.2
